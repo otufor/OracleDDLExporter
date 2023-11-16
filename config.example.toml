@@ -1,0 +1,19 @@
+# このファイルは config.toml の設定例です。
+# 実際に使用する前に、適切な値に置き換えてください。
+
+[client]
+instant_client_path = "インスタントクライアントへのパス"
+
+[database]
+host = "データベースホスト"
+port = "ポート"
+service_name = "サービス名"
+user = "ユーザー名"
+password = "パスワード"
+
+[extraction]
+schema = "対象のスキーマ"
+object_types = ["TABLE", "VIEW", "PACKAGE", "PACKAGE BODY", ...]
+
+[output]
+directory = "出力先のディレクトリパス"
