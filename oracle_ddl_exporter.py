@@ -48,7 +48,13 @@ def get_ddl(connection: oracledb.Connection, object_type: str, name: str, schema
             ddl_result = cursor.fetchone()
         except oracledb.Error as e:
             print(f"Error getting DDL for {object_type} {name}: {e}")
-        return ddl_result[0] if ddl_result else None
+        if not ddl_result:
+            return None
+        # LOBはread()でstrに変換
+        if isinstance(ddl_result[0], oracledb.LOB):
+            return ddl_result[0].read().strip() 
+        else:
+            return ddl_result[0].strip()
 
 def write_to_file(directory: str, filename: str, ddl: str) -> None:
     """指定されたディレクトリに、指定されたファイル名でDDLを書き込む。
@@ -71,7 +77,7 @@ def fetch_and_write_ddls(connection: oracledb.Connection, schema: str, object_ty
         schema (str): 対象のスキーマ名。
         object_types (list[str]): 対象のオブジェクトタイプのリスト。
     """
-    placeholder = ', '.join(['?'] * len(object_types))
+    placeholder = ', '.join([f':object_types_{i+1}' for i in range(len(object_types))])
     query = f"""
         SELECT object_name, object_type
         FROM all_objects

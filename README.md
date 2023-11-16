@@ -40,10 +40,10 @@
 
 ### スクリプトの実行
 
-仮想環境内で、以下のコマンドで `ddl_export.py` スクリプトを実行します：
+仮想環境内で、以下のコマンドで `oracle_ddl_exporter.py` スクリプトを実行します：
 
 ```cmd
-py ddl_export.py
+python oracle_ddl_exporter.py
 ```
 
 ## 設定

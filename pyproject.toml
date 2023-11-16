@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "oracleddlexporter"
+name = "oracle_ddl_exporter"
 version = "0.1.0"
 description = ""
 authors = ["Masaaki Hashimoto <mh076144@gmail.com>"]
