@@ -52,9 +52,9 @@ def get_ddl(connection: oracledb.Connection, object_type: str, name: str, schema
             return None
         # LOBはread()でstrに変換
         if isinstance(ddl_result[0], oracledb.LOB):
-            return ddl_result[0].read().strip() 
+            return ddl_result[0].read().strip() + "\n"
         else:
-            return ddl_result[0].strip()
+            return ddl_result[0].strip() + "\n"
 
 def write_to_file(directory: str, filename: str, ddl: str) -> None:
     """指定されたディレクトリに、指定されたファイル名でDDLを書き込む。
@@ -88,7 +88,9 @@ def fetch_and_write_ddls(connection: oracledb.Connection, schema: str, object_ty
         objects = list(cursor)
 
     for object_name, object_type in tqdm(objects, desc="Extracting", unit="file"):
-        ddl_type = "PACKAGE_BODY" if object_type == "PACKAGE BODY" else object_type
+        ddl_type =  object_type
+        ddl_type = "PACKAGE_BODY" if ddl_type == "PACKAGE BODY" else ddl_type
+        ddl_type = "PACKAGE_SPEC" if ddl_type == "PACKAGE" else ddl_type
         ddl = get_ddl(connection, ddl_type, object_name, schema)
         if ddl:
             directory = os.path.join(output_directory, schema, ddl_type)
