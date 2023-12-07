@@ -93,10 +93,24 @@ def fetch_and_write_ddls(connection: oracledb.Connection, schema: str, object_ty
         ddl_type = "PACKAGE_SPEC" if ddl_type == "PACKAGE" else ddl_type
         ddl = get_ddl(connection, ddl_type, object_name, schema)
         if ddl:
+            ddl = format_ddl(ddl)
             directory = os.path.join(output_directory, schema, ddl_type)
             make_directory(directory)
             filename = f"{object_name}.sql"
             write_to_file(directory, filename, ddl)
+
+def format_ddl(ddl: str) -> str:
+    """DDL文字列のフォーマットを行う。
+
+    Args:
+        ddl (str): フォーマットするDDL文字列。
+
+    Returns:
+        str: フォーマット後のDDL文字列。
+    """
+    ddl_lines = ddl.splitlines()
+    ddl_lines[0] = ddl_lines[0].replace('"', '')
+    return '\n'.join(ddl_lines) + '/\n\n'
 
 def main() -> None:
     """メイン実行関数。設定を読み込み、データベース接続を行い、DDLを抽出してファイルに書き込む。"""
