@@ -48,6 +48,7 @@ def get_ddl(connection: oracledb.Connection, object_type: str, name: str, schema
             ddl_result = cursor.fetchone()
         except oracledb.Error as e:
             print(f"Error getting DDL for {object_type} {name}: {e}")
+            return None
         if not ddl_result:
             return None
         # LOBはread()でstrに変換
@@ -67,7 +68,7 @@ def write_to_file(directory: str, filename: str, ddl: str) -> None:
     file_path = os.path.join(directory, filename)
     with open(file_path, 'w', encoding='utf-8') as file:
         file.write(ddl)
-        print(f"Written: {file_path}")
+        tqdm.write(f"Written: {file_path}")
 
 def fetch_and_write_ddls(connection: oracledb.Connection, schema: str, object_types: list[str], output_directory: str) -> None:
     """指定されたスキーマとオブジェクトタイプに基づいてDDLをフェッチし、ファイルに書き込む。
@@ -89,7 +90,11 @@ def fetch_and_write_ddls(connection: oracledb.Connection, schema: str, object_ty
 
     for object_name, object_type in tqdm(objects, desc="Extracting", unit="file"):
         ddl_type =  object_type
+        # DBMS_METADATA 用にddl_typeを変換
+        #   DBMS_METADATAリファレンス： https://docs.oracle.com/cd/E16338_01/appdev.112/b56262/d_metada.htm
+        # パッケージ本体("PACKAGE BODY") は "PACKAGE_BODY"
         ddl_type = "PACKAGE_BODY" if ddl_type == "PACKAGE BODY" else ddl_type
+        # パッケージ仕様部("PACKAGE") は "PACKAGE_SPEC"
         ddl_type = "PACKAGE_SPEC" if ddl_type == "PACKAGE" else ddl_type
         ddl = get_ddl(connection, ddl_type, object_name, schema)
         if ddl:
